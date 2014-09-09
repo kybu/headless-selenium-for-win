@@ -5,15 +5,21 @@ It is quite inconvenient that a browser window pops up when running Selenium
 tests. It might cause tests to fail because such window needs to hold user
 focus. That is the case with IE at least.
 
-In Linux world, this is solved by running browsers in a frame-buffer. Similar
-approach can be taken on Windows platform as well.
+In Linux world, this is solved by running browsers in a virtual frame-buffer.
+Similar approach can be taken on Windows platform as well.
 
-Contrary to popular believe, Windows is fully multi-user OS system. On top of
-that, it supports virtual desktops even though it is not very often compared
+Contrary to popular believe, Windows is fully multi-user OS. On top of
+that, it supports virtual desktops even though it is not very often used compared
 to Linux desktop environments.
 
 This application uses virtual desktops to run web browsers in so that they
 do not disturb the main user desktop.
+
+# Internet Explorer
+
+When using IE, please pay full attention to configure the driver correctly. All
+necessary details can be found at https://code.google.com/p/selenium/wiki/InternetExplorerDriver
+in the 'Required Configuration' section.
 
 # Basic Ruby example
 
@@ -56,7 +62,8 @@ Following example uses www.google.com search to retrieve weather in London.
     
     driver.quit
 
-Output might be something like this:
+Output might be something like this. 'Sunny Weather' can be retrieved
+only on rare occasions:
 
     Headless IE binary: ../Debug/headless_ie_selenium.exe
     London, UK
