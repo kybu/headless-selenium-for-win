@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "desktop_utils", "desktop_utils\desktop_utils.vcxproj", "{54DC9B25-BAE9-467E-B62E-B04AD8D8CFC5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "headless_ie_selenium", "headless_ie_selenium\headless_ie_selenium.vcxproj", "{B5B85A52-9AC1-4DF1-AC3C-C5A487CCEEBA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3FB50365-37B6-49A4-AF3F-FC213667E608}"
+	ProjectSection(SolutionItems) = preProject
+		version.h = version.h
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54DC9B25-BAE9-467E-B62E-B04AD8D8CFC5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{54DC9B25-BAE9-467E-B62E-B04AD8D8CFC5}.Debug|Win32.Build.0 = Debug|Win32
+		{54DC9B25-BAE9-467E-B62E-B04AD8D8CFC5}.Release|Win32.ActiveCfg = Release|Win32
+		{54DC9B25-BAE9-467E-B62E-B04AD8D8CFC5}.Release|Win32.Build.0 = Release|Win32
+		{B5B85A52-9AC1-4DF1-AC3C-C5A487CCEEBA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B5B85A52-9AC1-4DF1-AC3C-C5A487CCEEBA}.Debug|Win32.Build.0 = Debug|Win32
+		{B5B85A52-9AC1-4DF1-AC3C-C5A487CCEEBA}.Release|Win32.ActiveCfg = Release|Win32
+		{B5B85A52-9AC1-4DF1-AC3C-C5A487CCEEBA}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

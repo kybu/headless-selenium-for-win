@@ -1,0 +1,10 @@
+Debug
+ipch
+\.sdf$
+\.suo$
+\.vcxproj\..*$
+\.opensdf$
+\.aps$
+
+\.idea$
+
