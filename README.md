@@ -15,6 +15,10 @@ to Linux desktop environments.
 This application uses virtual desktops to run web browsers in so that they
 do not disturb the main user desktop.
 
+# Download
+
+Binaries can be downloaded from https://github.com/kybu/headless-selenium-for-win/releases 
+
 # Internet Explorer
 
 When using IE, please pay full attention to configure the driver correctly. All
