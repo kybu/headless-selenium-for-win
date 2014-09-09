@@ -21,7 +21,18 @@ When using IE, please pay full attention to configure the driver correctly. All
 necessary details can be found at https://code.google.com/p/selenium/wiki/InternetExplorerDriver
 in the 'Required Configuration' section.
 
-# Basic Ruby example
+## Setup
+
+Selenium uses a standalone executable called 'IEDriverServer.exe' to drive the IE browser window.
+Selenium has to be instructed to use the 'headless_ie_selenium.exe' executable to run tests
+headlessly.
+
+'headless_ie_selenium.exe' created a virtual desktop and runs 'IEDriverServer.exe' inside of it.
+Any command line parameters are passed on to the IE driver.
+
+'IEDriverServer.exe' has to be stored in the searchable path.
+
+## Basic Ruby example
 
 Following example uses www.google.com search to retrieve weather in London.
 
@@ -97,7 +108,11 @@ only on rare occasions:
 
 # Technical details
 
+Tested on Win 7.
+
 Supported browsers at the moment: IE.
+
+Written using VS 2013 Express, Boost 1.56.
 
 # License
 
