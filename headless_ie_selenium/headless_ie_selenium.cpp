@@ -67,6 +67,9 @@ string findIEDriver() {
     NULL, L"IEDriverServer.exe", NULL,
     32 * 1024, buffer.get(), &bufferEnd);
 
+  if (!length)
+    throw runtime_error("IEDriverServer.exe cannot be found!");
+
   buffer[length] = 0;
 
   return bo::to_utf8(buffer.get());
@@ -74,28 +77,39 @@ string findIEDriver() {
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
-  string cmdLine = getAppCmdArgs();
-  string ieDriverPath = findIEDriver();
+  try {
+    string cmdLine = getAppCmdArgs();
+    string ieDriverPath = findIEDriver();
 
-  cout << "IE driver found at: " << ieDriverPath << endl;
+    cout << "IE driver found at: " << ieDriverPath << endl;
 
-  if (Desktop::exists(desktopName))
-    cout << "WARN: Headless desktop '" << desktopName
-         << "' already exists! IE driver might be flaky." << endl;
+    if (Desktop::exists(desktopName))
+      cout << "WARN: Headless desktop '" << desktopName
+      << "' already exists! IE driver might be flaky." << endl;
 
-  cout << endl;
+    cout << endl;
 
-  HDESK desktopHandle = Desktop::create(desktopName);
-  Desktop::createProcess(desktopName, "c:\\Windows\\explorer.exe");
+    HDESK desktopHandle = Desktop::create(desktopName);
+    Desktop::createProcess(desktopName, "c:\\Windows\\explorer.exe");
 
-  Sleep(2000);
+    Sleep(2000);
 
-  PROCESS_INFORMATION pi = Desktop::createProcess(
-    desktopName,
-    ieDriverPath,
-    cmdLine);
+    PROCESS_INFORMATION pi = Desktop::createProcess(
+      desktopName,
+      ieDriverPath,
+      cmdLine);
 
-  Process::wait(pi.hProcess);
+    Process::wait(pi.hProcess);
+  }
+  catch (runtime_error &e) {
+    cerr << e.what() << endl;
+    return 1;
+  }
+  catch (...) {
+    cerr << "A bummer, unknown exception caught!" << endl;
+
+    return 1;
+  }
 
   return 0;
 }
