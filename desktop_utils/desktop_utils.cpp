@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Foobar.If not, see <http://www.gnu.org/licenses/>. */
+# along with 'Headless Selenium for Win'.If not, see <http://www.gnu.org/licenses/>. */
 
 //
 // Following http://utf8everywhere.org/ convention.
@@ -87,7 +87,7 @@ ParseStatus parseCommandLine(int argc, _TCHAR *argv[]) {
     if (!vm.count("run"))
       throw runtime_error("--run option must be specified!");
   }
-  catch (po::unknown_option &e) {
+  catch (po::error &e) {
     LOGF << e.what();
 
     return ParseStatus::FAILED;
@@ -96,8 +96,26 @@ ParseStatus parseCommandLine(int argc, _TCHAR *argv[]) {
   return ParseStatus::OK;
 }
 
+void setupLogger() {
+  using namespace boost::log;
+
+  add_console_log(
+    cout,
+    keywords::format = "%Message%");
+
+#ifdef _DEBUG
+  core::get()->set_filter(
+    trivial::severity >= trivial::trace);
+#else
+  core::get()->set_filter(
+    trivial::severity >= trivial::info);
+#endif
+}
+
 int _tmain(int argc, _TCHAR* argv[]) {
   try {
+    setupLogger();
+
     switch (parseCommandLine(argc, argv)) {
     case ParseStatus::FAILED:
       return 1;
