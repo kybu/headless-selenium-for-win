@@ -25,6 +25,10 @@ HDESK Desktop::create(const string &name) {
     CreateDesktop(
     bo::from_utf8(name).c_str(), NULL, NULL, DF_ALLOWOTHERACCOUNTHOOK, GENERIC_ALL, NULL);
 
+  if (handle == NULL)
+    throw DesktopError(
+      (bo::format("Could not create the '%1%' desktop!") % name));
+
   return handle;
 }
 
@@ -43,7 +47,7 @@ bool Desktop::exists(const string &name) {
 // cmdLine = *.cpp
 PROCESS_INFORMATION Desktop::createProcess(
   const string &desktopName, const string &appName,
-  const string &cmdLine) {
+  const string &cmdLine, int processCreationFlags) {
 
   STARTUPINFO si;
   memset(&si, 0, sizeof(si));
@@ -66,13 +70,65 @@ PROCESS_INFORMATION Desktop::createProcess(
   BOOL created = CreateProcess(
     bo::from_utf8(appName).c_str(),
     cmdLineTmp.get(),
-    NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL,
+    NULL, NULL, FALSE, processCreationFlags, NULL, NULL,
     &si, &pi);
 
   if (created == FALSE)
-    throw DesktopError("Cannot create a process!");
+    throw DesktopError(
+      bo::format(
+        "Could not create the '%1%' process in the '%2%' desktop!")
+        % appName
+        % desktopName);
 
   return pi;
+}
+
+auto Desktop::createProcessInTheJob(
+  const string &desktopName,
+  const string &appName,
+  const string &cmdLine,
+  HANDLE jobHandle) -> ProcessInTheJob {
+
+  HANDLE newJobHandle = 0;
+
+  if (!jobHandle) {
+    newJobHandle = CreateJobObject(NULL, NULL);
+    if (newJobHandle == NULL)
+      throw DesktopError("Job cannot be created!");
+
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimits;
+    memset(&jobLimits, 0, sizeof(jobLimits));
+
+    jobLimits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+
+    SetInformationJobObject(
+      newJobHandle, JobObjectExtendedLimitInformation,
+      &jobLimits, sizeof(jobLimits));
+
+    jobHandle = newJobHandle;
+  }
+
+  auto processInfo = createProcess(
+    desktopName, appName, cmdLine,
+    NORMAL_PRIORITY_CLASS | CREATE_SUSPENDED);
+
+  auto r = AssignProcessToJobObject(jobHandle, processInfo.hProcess);
+  if (r == NULL) {
+    if (newJobHandle)
+      CloseHandle(newJobHandle);
+
+    return ProcessInTheJob(
+      ProcessInTheJob::COULD_NOT_ASSIGN_JOB,
+      0,
+      processInfo);
+  }
+
+  ResumeThread(processInfo.hThread);
+
+  return ProcessInTheJob(
+    ProcessInTheJob::JOB_ASSIGNED,
+    jobHandle,
+    processInfo);
 }
 
 void Desktop::switchToDefault() {
@@ -99,9 +155,35 @@ vector<string> Desktop::desktops() {
   return desktops;
 }
 
+vector<HWND> Desktop::allTopLevelWindows(const std::string &name) {
+  vector<HWND> windows;
+
+  HDESK handle = OpenDesktop(
+    bo::from_utf8(name).c_str(),
+    0, FALSE, 0);
+
+  EnumDesktopWindows(handle, enumWindowsProc, (LPARAM)&windows);
+  CloseDesktop(handle);
+
+  return windows;
+}
+
+BOOL CALLBACK Desktop::enumWindowsProc(
+  _In_  HWND hwnd,
+  _In_  LPARAM lParam) {
+
+  vector<HWND> *windows = (vector<HWND> *)lParam;
+  windows->push_back(hwnd);
+
+  return TRUE;
+}
+
 void Desktop::switchTo(HDESK desktopHandle) {
   if (SwitchDesktop(desktopHandle) == 0)
-    cerr << "Cannot switch to a desktop!" << endl;
+    throw DesktopError(
+      bo::format(
+        "Could not switch to a desktop with the '%1%' handle")
+        % desktopHandle);
 }
 
 BOOL CALLBACK Desktop::enumDesktopProc(

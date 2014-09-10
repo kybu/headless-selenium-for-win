@@ -7,12 +7,26 @@
 
 #include "targetver.h"
 
+#include <Windows.h>
 #include <stdio.h>
 #include <tchar.h>
+#include <VersionHelpers.h>
+#include <RestartManager.h>
 
 #include <boost/smart_ptr.hpp>
+#include <boost/thread.hpp>
+
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/console.hpp>
+
 
 #include "../desktop_utils/desktop.h"
+
+#define LOGT BOOST_LOG_TRIVIAL(trace)
+#define LOGD BOOST_LOG_TRIVIAL(debug)
+#define LOGI BOOST_LOG_TRIVIAL(info)
+#define LOGW BOOST_LOG_TRIVIAL(warning)
+#define LOGF BOOST_LOG_TRIVIAL(fatal)
 
 
 

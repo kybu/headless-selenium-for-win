@@ -88,7 +88,7 @@ ParseStatus parseCommandLine(int argc, _TCHAR *argv[]) {
       throw runtime_error("--run option must be specified!");
   }
   catch (po::unknown_option &e) {
-    cerr << e.what() << endl;
+    LOGF << e.what();
 
     return ParseStatus::FAILED;
   }
@@ -96,10 +96,7 @@ ParseStatus parseCommandLine(int argc, _TCHAR *argv[]) {
   return ParseStatus::OK;
 }
 
-
 int _tmain(int argc, _TCHAR* argv[]) {
-  // Let's go.
-
   try {
     switch (parseCommandLine(argc, argv)) {
     case ParseStatus::FAILED:
@@ -123,11 +120,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
       headlessCmd);
   }
   catch (runtime_error &e) {
-    cerr << e.what() << endl;
+    LOGF << e.what();
     return 1;
   }
   catch (...) {
-    cerr << "A bummer, unknown exception caught!" << endl;
+    LOGF << "A bummer, unknown exception caught!";
 
     return 1;
   }

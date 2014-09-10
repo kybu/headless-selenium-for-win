@@ -75,38 +75,127 @@ string findIEDriver() {
   return bo::to_utf8(buffer.get());
 }
 
+Desktop::ProcessInTheJob explorerInfo, driverInfo;
+HANDLE jobHandle = 0;
+HDESK desktopHandle = 0;
+
+// Can be run only once because ctrHandle() is executed on a different thread.
+// Could be implemented less dodgy in the future.
+void cleanUp() {
+  using namespace boost;
+  static mutex m;
+  m.lock();
+
+  auto topWindows = Desktop::allTopLevelWindows(desktopName);
+  LOGD << "Top level windows in the headless desktop: " << topWindows.size();
+
+  for (HWND w : topWindows) {
+    LOGT << bo::format("Quitting the '%1%' top level window.") % w;
+
+    PostMessage(w, WM_ENDSESSION, NULL, ENDSESSION_CLOSEAPP);
+    PostMessage(w, WM_QUIT, 0, 0);
+  }
+
+  Sleep(2000 - 618);
+  LOGD << "Top level windows after sending the quit msg: "
+       << Desktop::allTopLevelWindows(desktopName).size();
+
+  Process::wait(explorerInfo.processInfo.hProcess);
+
+  if (jobHandle) {
+    LOGD << "Going to close the job object.";
+    CloseHandle(jobHandle);
+  }
+}
+
+// Executes on a different thread.
+BOOL ctrlHandler(DWORD ctrlType) {
+  LOGI << "Exiting ...";
+
+  cleanUp();
+
+  return FALSE;
+}
+
+void setupLogger() {
+  using namespace boost::log;
+
+  add_console_log(
+    cout,
+    keywords::format = "%Message%");
+
+#ifdef _DEBUG
+  core::get()->set_filter(
+    trivial::severity >= trivial::trace);
+#else
+  core::get()->set_filter(
+    trivial::severity >= trivial::info);
+#endif
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 { 
   try {
+    setupLogger();
+
     string cmdLine = getAppCmdArgs();
     string ieDriverPath = findIEDriver();
 
-    cout << "IE driver found at: " << ieDriverPath << endl;
+    LOGI << "IE driver found at: " << ieDriverPath;
 
     if (Desktop::exists(desktopName))
-      cout << "WARN: Headless desktop '" << desktopName
-      << "' already exists! IE driver might be flaky." << endl;
+      LOGW << "WARN: Headless desktop '" << desktopName
+           << "' already exists! IE driver might be flaky.";
 
-    cout << endl;
+    LOGI; // empty line
 
-    HDESK desktopHandle = Desktop::create(desktopName);
-    Desktop::createProcess(desktopName, "c:\\Windows\\explorer.exe");
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrlHandler, TRUE);
+
+    desktopHandle = Desktop::create(desktopName);
+    explorerInfo = Desktop::createProcessInTheJob(
+      desktopName,
+      "c:\\Windows\\explorer.exe");
+
+    if (explorerInfo.status == explorerInfo.COULD_NOT_ASSIGN_JOB) {
+      LOGW << "WARN: Could not use Windows job objects! "
+              "That means the cleaning-up procedure might not be reliable.";
+      ResumeThread(explorerInfo.processInfo.hThread);
+    }
+    CloseHandle(explorerInfo.processInfo.hThread);
+    jobHandle = explorerInfo.jobHandle;
 
     Sleep(2000);
 
-    PROCESS_INFORMATION pi = Desktop::createProcess(
-      desktopName,
-      ieDriverPath,
-      cmdLine);
+    if (explorerInfo.status == explorerInfo.COULD_NOT_ASSIGN_JOB) {
+      auto pi = Desktop::createProcess(
+        desktopName,
+        ieDriverPath,
+        cmdLine);
 
-    Process::wait(pi.hProcess);
+      driverInfo = Desktop::ProcessInTheJob(
+        Desktop::ProcessInTheJob::COULD_NOT_ASSIGN_JOB,
+        0,
+        pi);
+    }
+    else 
+      driverInfo = Desktop::createProcessInTheJob(
+        desktopName,
+        ieDriverPath,
+        cmdLine,
+        jobHandle);
+
+    CloseHandle(driverInfo.processInfo.hThread);
+
+    Process::wait(driverInfo.processInfo.hProcess);
+
+    cleanUp();
   }
   catch (runtime_error &e) {
-    cerr << e.what() << endl;
+    LOGF << e.what();
     return 1;
   }
   catch (...) {
-    cerr << "A bummer, unknown exception caught!" << endl;
+    LOGF << "A bummer, unknown exception caught!";
 
     return 1;
   }

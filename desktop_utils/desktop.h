@@ -25,18 +25,43 @@ class DesktopError : public std::runtime_error {
 
 public:
   DesktopError(const std::string &msg) : MyBase(msg) {}
+  DesktopError(const boost::format &msg) : MyBase(msg.str()) {}
 };
 
 struct Desktop {
+  struct ProcessInTheJob {
+    HANDLE jobHandle;
+    PROCESS_INFORMATION processInfo;
+
+    enum Status {
+      JOB_ASSIGNED = 1, COULD_NOT_ASSIGN_JOB
+    } status = COULD_NOT_ASSIGN_JOB;
+
+    ProcessInTheJob() : jobHandle(0) {
+      memset(&processInfo, 0, sizeof(processInfo));
+    }
+
+    ProcessInTheJob(Status status, HANDLE jobHandle, PROCESS_INFORMATION processInfo)
+      : status(status), jobHandle(jobHandle), processInfo(processInfo) {}
+  };
+
   static HDESK create(const std::string &name);
   static bool exists(const std::string &name);
 
   static PROCESS_INFORMATION createProcess(
     const std::string &desktopName,
     const std::string &appName,
-    const std::string &cmdLine = "");
+    const std::string &cmdLine = "",
+    int processCreationFlags = NORMAL_PRIORITY_CLASS);
+
+  static ProcessInTheJob createProcessInTheJob(
+    const std::string &desktopName,
+    const std::string &appName,
+    const std::string &cmdLine = "",
+    HANDLE jobHandle = 0);
 
   static std::vector<std::string> Desktop::desktops();
+  static std::vector<HWND> Desktop::allTopLevelWindows(const std::string &name);
 
   static void switchToDefault();
   static void switchTo(HDESK desktopHandle);
@@ -45,6 +70,10 @@ struct Desktop {
 private:
   static BOOL CALLBACK enumDesktopProc(
     _In_  LPTSTR lpszDesktop,
+    _In_  LPARAM lParam);
+
+  static BOOL CALLBACK enumWindowsProc(
+    _In_  HWND hwnd,
     _In_  LPARAM lParam);
 };
 
