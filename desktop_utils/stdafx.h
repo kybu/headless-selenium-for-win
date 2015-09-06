@@ -23,6 +23,7 @@
 #include <boost/log/utility/setup/console.hpp>
 
 #include "desktop.h"
+#include "environment.h"
 #include "process.h"
 
 

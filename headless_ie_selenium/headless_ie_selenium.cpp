@@ -21,7 +21,7 @@
 using namespace std;
 namespace bo = boost;
 
-string desktopName = "HeadlessDesktop";
+string desktopName;
 
 template <class SepT, class IterT>
 SepT join(IterT begin, const IterT end, const SepT &sep)
@@ -58,9 +58,24 @@ string getAppCmdArgs() {
   return cmdLine;
 }
 
+void prepareDesktopName() {
+  if (Environment::variableExists("HEADLESS_UNIQUE")) {
+    bo::random_device random;
+
+    string name;
+    do {
+      name = (bo::format("HeadlessDesktop_%1%") % random()).str();
+    } while (Desktop::exists(name));
+
+    desktopName = name;
+  }
+  else
+    desktopName = "HeadlessDesktop";
+}
+
 // TODO: Implement safer SearchPath.
 string findIEDriver() {
-  bo::shared_ptr<wchar_t[]> buffer(new wchar_t[32*1024]);
+  bo::movelib::unique_ptr<wchar_t[]> buffer(new wchar_t[32*1024]);
   wchar_t *bufferEnd = 0;
 
   DWORD length = SearchPath(
@@ -90,7 +105,7 @@ void cleanUp() {
   LOGD << "Top level windows in the headless desktop: " << topWindows.size();
 
   for (HWND w : topWindows) {
-    LOGT << bo::format("Quitting the '%1%' top level window.") % w;
+    LOGT << (bo::format("Quitting the '%1%' top level window.") % w).str();
 
     PostMessage(w, WM_ENDSESSION, NULL, ENDSESSION_CLOSEAPP);
     PostMessage(w, WM_QUIT, 0, 0);
@@ -137,6 +152,8 @@ int _tmain(int argc, _TCHAR* argv[])
 { 
   try {
     setupLogger();
+
+    prepareDesktopName();
 
     string cmdLine = getAppCmdArgs();
     string ieDriverPath = findIEDriver();

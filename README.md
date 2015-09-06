@@ -38,6 +38,10 @@ Any command line parameters are passed on to the IE driver.
 
 `IEDriverServer.exe` has to be stored in the searchable path.
 
+New virtual desktop name is `HeadlessDesktop`. If you want to create a unique desktop name each time
+the `headless_ie_selenium.exe` executable is run, variable `HEADLESS_UNIQUE` has to exist in the environment.
+Its value does not matter, unique desktop name will be generated as long as this variable is present.
+
 ## Basic Ruby example
 
 Following example uses www.google.com search to retrieve weather in London.
@@ -46,6 +50,9 @@ Following example uses www.google.com search to retrieve weather in London.
 require 'selenium-webdriver'
 
 Dir.chdir(File.dirname $0)
+
+# Generate unique desktop name each run
+ENV['HEADLESS_UNIQUE'] = 1
 
 # Find the Headless IE binary.
 headlessBinary =
@@ -146,9 +153,9 @@ Tested on Win 7.
 
 Supported browsers at the moment: IE.
 
-Developed using VS 2013 Express, Boost 1.56, Mercurial with the GIT bridge.
+Developed using VS 2013 Express, Boost 1.59, Mercurial with the GIT bridge.
 
 # License
 
-GPLv3, Copyright 2014 Peter Vrabel
+GPLv3, Copyright 2014,2015 Peter Vrabel
 
