@@ -58,17 +58,34 @@ PROCESS_INFORMATION Desktop::createProcess(
   PROCESS_INFORMATION pi;
   memset(&pi, 0, sizeof(pi));
 
-  bo::shared_ptr<wchar_t []> cmdLineTmp;
-  if (!cmdLine.empty()) {
+  bo::movelib::unique_ptr<wchar_t []> cmdLineTmp;
+  bo::movelib::unique_ptr<wchar_t []> appNameTmp;
+
+  if (!appName.empty() && !cmdLine.empty()) {
     wstring tmp = bo::from_utf8(appName + " " + cmdLine);
 
     cmdLineTmp.reset(new wchar_t[tmp.size()+1]);
     memmove(cmdLineTmp.get(), tmp.c_str(), tmp.size()*sizeof(wchar_t));
     cmdLineTmp[tmp.size()] = 0;
   }
+  else if (!cmdLine.empty()) {
+    wstring tmp = bo::from_utf8(cmdLine);
+
+    cmdLineTmp.reset(new wchar_t[tmp.size()+1]);
+    memmove(cmdLineTmp.get(), tmp.c_str(), tmp.size()*sizeof(wchar_t));
+    cmdLineTmp[tmp.size()] = 0;
+  }
+
+  if (!appName.empty()) {
+    wstring tmp = bo::from_utf8(appName);
+
+    appNameTmp.reset(new wchar_t[tmp.size()+1]);
+    memmove(appNameTmp.get(), tmp.c_str(), tmp.size()*sizeof(wchar_t));
+    appNameTmp[tmp.size()] = 0;
+  }
 
   BOOL created = CreateProcess(
-    bo::from_utf8(appName).c_str(),
+    appNameTmp.get(),
     cmdLineTmp.get(),
     NULL, NULL, FALSE, processCreationFlags, NULL, NULL,
     &si, &pi);
@@ -76,8 +93,8 @@ PROCESS_INFORMATION Desktop::createProcess(
   if (created == FALSE)
     throw DesktopError(
       bo::format(
-        "Could not create the '%1%' process in the '%2%' desktop!")
-        % appName
+        "Could not run the '%1%' command in the '%2%' desktop!")
+        % (appName.empty() ? bo::to_utf8(cmdLineTmp.get()) : appName.c_str())
         % desktopName);
 
   return pi;

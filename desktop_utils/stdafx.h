@@ -16,6 +16,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/smart_ptr.hpp>
+#include <boost/move/unique_ptr.hpp>
 #include <boost/format.hpp>
 #include <boost/tuple/tuple.hpp>
 

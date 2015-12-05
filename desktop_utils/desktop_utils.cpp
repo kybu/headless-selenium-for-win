@@ -78,9 +78,9 @@ ParseStatus parseCommandLine(int argc, _TCHAR *argv[]) {
       cout << header << endl << endl
            << "* Available desktops:" << endl;
 
-      for (string desktop : Desktop::desktops())
+      for (auto desktop : Desktop::desktops())
         cout << desktop << endl;
-
+      
       return ParseStatus::EXIT_0;
     }
 
@@ -135,6 +135,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
     Desktop::createProcess(
       desktopName,
+      "",
       headlessCmd);
   }
   catch (runtime_error &e) {
