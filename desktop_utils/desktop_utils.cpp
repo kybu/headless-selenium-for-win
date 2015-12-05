@@ -33,7 +33,7 @@ string headlessCmd,
        switchToDesktop,
 
        header = (bo::format(
-         "Desktop utils v%1%.%2%, Peter Vrabel (c) 2014")
+         "Desktop utils v%1%.%2%, Peter Vrabel (c) 2014, 2015")
          % version[0] % version[1]).str();
 
 enum class ParseStatus {
