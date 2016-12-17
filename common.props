@@ -5,7 +5,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(BOOST_ROOT)\include\boost-1_59</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_INCDIR)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <StringPooling>true</StringPooling>
@@ -15,7 +15,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_LIBDIR)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
