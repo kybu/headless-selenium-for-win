@@ -1,5 +1,7 @@
 # Headless Selenium for Windows
 
+[![Build status](https://ci.appveyor.com/api/projects/status/v5mtxvfvb2necfkb?svg=true)](https://ci.appveyor.com/project/kybu/headless-selenium-for-win)
+
 It is quite inconvenient that a browser window pops up when running Selenium
 tests. It might cause tests to fail because such window needs to hold user
 input focus. That is the case with IE at least.
