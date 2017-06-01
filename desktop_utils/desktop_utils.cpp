@@ -1,4 +1,4 @@
-/* # Copyright 2014 Peter Vrabel(kybu@kybu.org)
+/* # Copyright 2014-2017 Peter Vrabel(kybu@kybu.org)
 #
 # This file is part of 'Headless Selenium for Win'.
 #
@@ -33,67 +33,67 @@ string headlessCmd,
        switchToDesktop,
 
        header = (bo::format(
-         "Desktop utils v%1%.%2%, Peter Vrabel (c) 2014, 2015")
+         "Desktop utils v%1%.%2%, Peter Vrabel (c) 2014-2017")
          % version[0] % version[1]).str();
+bool noExplorer = false;
 
 enum class ParseStatus {
   OK = 1, FAILED, HELP_SHOWN, EXIT_0
 };
 
-ParseStatus parseCommandLine(int argc, _TCHAR *argv[]) {
-  try {
-    po::options_description cmdOptions(header);
+ParseStatus parseCommandLine(int argc, _TCHAR *argv[]) try {
+  po::options_description cmdOptions(header);
 
-    cmdOptions.add_options()
+  cmdOptions.add_options()
       ("help,h", "Feeling desperate?")
       ("run,r", po::value(&headlessCmd), "Command to run headlessly.")
       ("desktop,n", po::value(&desktopName), "Set the headless desktop name. Used with '--run'. Optional, default = HeadlessDesktop")
       ("list,l", "List available desktops of current Window station.")
       ("switch-to,s", po::value(&switchToDesktop), "Switch to a desktop. Takes a desktop name from the list of desktops.")
-      ("switch-to-default,t", "Switch to the default desktop. Can be used if you are being stranded.");
+      ("switch-to-default,t", "Switch to the default desktop. Can be used if you are being stranded.")
+	    ("no-explorer,x", po::bool_switch(&noExplorer), "Don't run explorer in the created desktop");
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, cmdOptions), vm);
-    po::notify(vm);
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, cmdOptions), vm);
+  po::notify(vm);
 
-    if (vm.count("help")) {
-      cout << cmdOptions << endl;
+  if (vm.count("help")) {
+    cout << cmdOptions << endl;
 
-      return ParseStatus::HELP_SHOWN;
-    }
+    return ParseStatus::HELP_SHOWN;
+  }
 
-    if (vm.count("switch-to-default")) {
-      Desktop::switchToDefault();
+  if (vm.count("switch-to-default")) {
+    Desktop::switchToDefault();
 
-      return ParseStatus::EXIT_0;
-    }
+    return ParseStatus::EXIT_0;
+  }
 
-    if (vm.count("switch-to")) {
-      Desktop::switchTo(switchToDesktop);
+  if (vm.count("switch-to")) {
+    Desktop::switchTo(switchToDesktop);
 
-      return ParseStatus::EXIT_0;
-    }
+    return ParseStatus::EXIT_0;
+  }
 
-    if (vm.count("list")) {
-      cout << header << endl << endl
-           << "* Available desktops:" << endl;
+  if (vm.count("list")) {
+    cout << header << endl << endl
+         << "* Available desktops:" << endl;
 
-      for (auto desktop : Desktop::desktops())
-        cout << desktop << endl;
+    for (auto desktop : Desktop::desktops())
+    cout << desktop << endl;
       
-      return ParseStatus::EXIT_0;
-    }
-
-    if (!vm.count("run"))
-      throw runtime_error("--run option must be specified!");
+    return ParseStatus::EXIT_0;
   }
-  catch (po::error &e) {
-    LOGF << e.what();
 
-    return ParseStatus::FAILED;
-  }
+  if (!vm.count("run"))
+    throw runtime_error("--run option must be specified!");
 
   return ParseStatus::OK;
+}
+catch (po::error &e) {
+  LOGF << e.what();
+
+  return ParseStatus::FAILED;
 }
 
 void setupLogger() {
@@ -127,16 +127,27 @@ int _tmain(int argc, _TCHAR* argv[]) {
     };
 
     HDESK desktopHandle = Desktop::create(desktopName);
-    Desktop::createProcess(
-      desktopName,
-      "C:\\Windows\\explorer.exe");
 
-    Sleep(2000);
+    if (noExplorer) {
+      Desktop::createProcess(
+        desktopName,
+        "",
+        headlessCmd);
 
-    Desktop::createProcess(
-      desktopName,
-      "",
-      headlessCmd);
+      Sleep(2000);
+    }
+    else {
+      Desktop::createProcess(
+        desktopName,
+        "C:\\Windows\\explorer.exe");
+
+      Sleep(2000);
+
+      Desktop::createProcess(
+        desktopName,
+        "",
+        headlessCmd);
+    }
   }
   catch (runtime_error &e) {
     LOGF << e.what();

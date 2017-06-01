@@ -137,7 +137,7 @@ Generic Windows virtual desktop utility. It can run applications in virtual desk
 
 Command line options:
 
-    Desktop utils v1.1, Peter Vrabel (c) 2014:
+    Desktop utils v1.4, Peter Vrabel (c) 2014-2017:
       -h [ --help ]               Feeling desperate?
       -r [ --run ] arg            Command to run headlessly.
       -n [ --desktop ] arg        Set the headless desktop name. Used with '--run'.
@@ -148,6 +148,8 @@ Command line options:
                                   the list of desktops.
       -t [ --switch-to-default ]  Switch to the default desktop. Can be used if you
                                   are being stranded.
+      -x [ --no-explorer ]        Don't run explorer in the created desktop
+
 
 # Technical details
 
@@ -155,9 +157,9 @@ Tested on Win 7.
 
 Supported browsers at the moment: IE.
 
-Developed using VS 2013 Express, Boost 1.59, Mercurial with the GIT bridge.
+Developed using VS 2013 Express, Boost 1.59
 
 # License
 
-GPLv3, Copyright 2014,2015 Peter Vrabel
+GPLv3, Copyright 2014-2017 Peter Vrabel
 
