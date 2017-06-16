@@ -22,6 +22,7 @@
 class Environment {
 public:
   static bool variableExists(const std::string &);
+  static std::string variable(const std::string &);
 };
 
 // inline
@@ -38,4 +39,19 @@ bool Environment::variableExists(const std::string &var) {
     return false;
 
   return true;
+}
+
+inline
+std::string Environment::variable(const std::string &var) {
+  wchar_t buf[104];
+
+  auto ret = GetEnvironmentVariable(
+    boost::from_utf8(var).c_str(),
+    buf, 104);
+
+  if (!ret && GetLastError() == ERROR_ENVVAR_NOT_FOUND)
+    throw std::runtime_error(
+      (boost::format("No such environment variable: %1%") % var).str());
+
+  return std::string(boost::to_utf8(buf));
 }
