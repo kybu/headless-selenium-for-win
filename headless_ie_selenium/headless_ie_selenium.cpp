@@ -74,16 +74,17 @@ void prepareDesktopName() {
 }
 
 // TODO: Implement safer SearchPath.
-string findIEDriver() {
+string findSeleniumDriver(const string &driver) {
   bo::movelib::unique_ptr<wchar_t[]> buffer(new wchar_t[32*1024]);
   wchar_t *bufferEnd = 0;
 
   DWORD length = SearchPath(
-    NULL, L"IEDriverServer.exe", NULL,
+    NULL, bo::from_utf8(driver).c_str(), NULL,
     32 * 1024, buffer.get(), &bufferEnd);
 
   if (!length)
-    throw runtime_error("IEDriverServer.exe cannot be found!");
+    throw runtime_error(
+      (bo::format("%1% cannot be found!") % driver).str());
 
   buffer[length] = 0;
 
@@ -156,13 +157,20 @@ int _tmain(int argc, _TCHAR* argv[])
     prepareDesktopName();
 
     string cmdLine = getAppCmdArgs();
-    string ieDriverPath = findIEDriver();
 
-    LOGI << "IE driver found at: " << ieDriverPath;
+    string selDriver = "IEDriverServer.exe";
+    if (Environment::variableExists("HEADLESS_DRIVER")) {
+      selDriver = Environment::variable("HEADLESS_DRIVER");
+      LOGD << "HEADLESS_DRIVER env variable: " << selDriver;
+    }
+
+    string selDriverPath = findSeleniumDriver(selDriver);
+
+    LOGI << "Selenium driver found at: " << selDriverPath;
 
     if (Desktop::exists(desktopName))
       LOGW << "WARN: Headless desktop '" << desktopName
-           << "' already exists! IE driver might be flaky.";
+           << "' already exists! Selenium driver might be flaky.";
 
     LOGI; // empty line
 
@@ -186,7 +194,7 @@ int _tmain(int argc, _TCHAR* argv[])
     if (explorerInfo.status == explorerInfo.COULD_NOT_ASSIGN_JOB) {
       auto pi = Desktop::createProcess(
         desktopName,
-        ieDriverPath,
+        selDriverPath,
         cmdLine);
 
       driverInfo = Desktop::ProcessInTheJob(
@@ -197,7 +205,7 @@ int _tmain(int argc, _TCHAR* argv[])
     else 
       driverInfo = Desktop::createProcessInTheJob(
         desktopName,
-        ieDriverPath,
+        selDriverPath,
         cmdLine,
         jobHandle);
 
