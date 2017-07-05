@@ -1,4 +1,4 @@
-/* # Copyright 2014 Peter Vrabel(kybu@kybu.org)
+/* # Copyright 2014-2017 Peter Vrabel(kybu@kybu.org)
 #
 # This file is part of 'Headless Selenium for Win'.
 #
@@ -50,7 +50,7 @@ string getAppCmdArgs() {
   string cmdLine;
   if (argsCount > 2)
     cmdLine = bo::to_utf8(
-      join(args.get() + 1, args.get() + argsCount - 1, wstring(L" ")));
+      join(args.get() + 1, args.get() + argsCount, wstring(L" ")));
 
   else if (argsCount == 2)
     cmdLine = bo::to_utf8(*(args.get() + 1));
