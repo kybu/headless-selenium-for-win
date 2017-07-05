@@ -32,7 +32,7 @@ as well. All command line arguments are forwarded to the driver, so the
 `HEADLESS_DRIVER` environment variable is used to specify the driver. Put
 the driver in one of the `PATH` directories.
 
-Set the `HEADLESS_SERVER` environment variable to `geckodriver.exe` for
+Set the `HEADLESS_DRIVER` environment variable to `geckodriver.exe` for
 headless Firefox.
 
 # Internet Explorer
