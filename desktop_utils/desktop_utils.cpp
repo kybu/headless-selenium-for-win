@@ -33,7 +33,7 @@ string headlessCmd,
        switchToDesktop,
 
        header = (bo::format(
-         "Desktop utils v%1%.%2%.alpha1, Peter Vrabel (c) 2014-2017")
+         "Desktop utils v%1%.%2%, Peter Vrabel (c) 2014-2017")
          % version[0] % version[1]).str();
 bool noExplorer = false;
 

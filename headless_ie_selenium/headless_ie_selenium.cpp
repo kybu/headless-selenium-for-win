@@ -94,7 +94,7 @@ string findSeleniumDriver(const string &driver) {
   return bo::to_utf8(buffer.get());
 }
 
-Desktop::ProcessInTheJob explorerInfo, driverInfo;
+Desktop::ProcessInTheJob driverInfo;
 HANDLE jobHandle = 0;
 HDESK desktopHandle = 0;
 
@@ -107,7 +107,7 @@ void cleanUp() {
 
   auto topWindows = Desktop::allTopLevelWindows(desktopName);
   LOGD << "Top level windows in the headless desktop: " << topWindows.size();
-
+    
   for (HWND w : topWindows) {
     LOGT << (bo::format("Quitting the '%1%' top level window.") % w).str();
 
@@ -118,8 +118,6 @@ void cleanUp() {
   Sleep(2000 - 618);
   LOGD << "Top level windows after sending the quit msg: "
        << Desktop::allTopLevelWindows(desktopName).size();
-
-  Process::wait(explorerInfo.processInfo.hProcess);
 
   if (jobHandle) {
     LOGD << "Going to close the job object.";
@@ -180,41 +178,22 @@ int _tmain(int argc, _TCHAR* argv[])
     SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrlHandler, TRUE);
 
     desktopHandle = Desktop::create(desktopName);
-    explorerInfo = Desktop::createProcessInTheJob(
+    
+    driverInfo = Desktop::createProcessInTheJob(
       desktopName,
-      "c:\\Windows\\explorer.exe");
+      selDriverPath,
+      cmdLine);
 
-    if (explorerInfo.status == explorerInfo.COULD_NOT_ASSIGN_JOB) {
+    if (driverInfo.status == driverInfo.COULD_NOT_ASSIGN_JOB) {
       LOGW << "WARN: Could not use Windows job objects! "
               "That means the cleaning-up procedure might not be reliable.";
-      ResumeThread(explorerInfo.processInfo.hThread);
+      ResumeThread(driverInfo.processInfo.hThread);
     }
-    CloseHandle(explorerInfo.processInfo.hThread);
-    jobHandle = explorerInfo.jobHandle;
-
-    Sleep(2000);
-
-    if (explorerInfo.status == explorerInfo.COULD_NOT_ASSIGN_JOB) {
-      auto pi = Desktop::createProcess(
-        desktopName,
-        selDriverPath,
-        cmdLine);
-
-      driverInfo = Desktop::ProcessInTheJob(
-        Desktop::ProcessInTheJob::COULD_NOT_ASSIGN_JOB,
-        0,
-        pi);
-    }
-    else 
-      driverInfo = Desktop::createProcessInTheJob(
-        desktopName,
-        selDriverPath,
-        cmdLine,
-        jobHandle);
+    jobHandle = driverInfo.jobHandle;
 
     CloseHandle(driverInfo.processInfo.hThread);
-
     Process::wait(driverInfo.processInfo.hProcess);
+    CloseHandle(driverInfo.processInfo.hProcess);
 
     cleanUp();
   }

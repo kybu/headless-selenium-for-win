@@ -23,6 +23,18 @@ Ruby, ...).
 
 Binaries can be downloaded from https://github.com/kybu/headless-selenium-for-win/releases 
 
+# Firefox & Chrome
+
+Selenium uses "drivers" to control web browsers. They are standalone
+executables driving browsers. `headless_ie_selenium.exe` by default looks
+for the IE driver in `PATH`, but it can be instructed to use other drivers
+as well. All command line arguments are forwarded to the driver, so the
+`HEADLESS_DRIVER` environment variable is used to specify the driver. Put
+the driver in one of the `PATH` directories.
+
+Set the `HEADLESS_SERVER` environment variable to `geckodriver.exe` for
+headless Firefox.
+
 # Internet Explorer
 
 When using IE, please pay full attention to configure the driver correctly. All
@@ -128,8 +140,10 @@ only on rare occasions:
 
 ## headless_ie_selenium.exe
 
-This executable runs IE Webdriver `IEDriverServer.exe` headlessly. It is meant to be used by Selenium Webdriver
-library instead of IE Webdriver.
+This executable runs IE Webdriver `IEDriverServer.exe` headlessly. It is
+meant to be used by Selenium Webdriver library instead of IE Webdriver.
+Other Selenium drivers can be used by specifying `HEADLESS_DRIVER`
+environment variable.
 
 ## desktop_utils.exe
 
@@ -155,9 +169,10 @@ Command line options:
 
 Tested on Win 7.
 
-Supported browsers at the moment: IE.
+Supported browsers: IE, Firefox, Chrome.
 
-Developed using VS 2013 Express, Boost 1.59
+Developed using VS 2013 Express, Boost 1.59 and a bit of system level
+programming skills.
 
 # License
 
