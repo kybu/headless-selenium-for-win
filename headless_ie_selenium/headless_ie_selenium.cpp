@@ -33,16 +33,19 @@ SepT join(IterT begin, const IterT end, const SepT &sep)
   ostringstream_type result;
 
   if (begin != end)
-    result << *begin++;
+    result << L"\"" << *begin++ << L"\"";
   while (begin != end) {
     result << sep;
-    result << *begin++;
+    result << L"\"" << *begin++ << L"\"";
   }
   return result.str();
 }
 
 string getAppCmdArgs() {
   int argsCount = 0;
+  auto cmdOrig = GetCommandLine();
+  LOGD << "Command line: " << cmdOrig;
+
   bo::shared_ptr<wchar_t *> args(
     CommandLineToArgvW(GetCommandLine(), &argsCount),
     LocalFree);
